@@ -10,6 +10,7 @@ class MealItem extends StatelessWidget {
   final int duration;
   final Complexity complexity;
   final Affordability affordability;
+  final Function removeItem;
 
   MealItem({
     required this.id,
@@ -18,6 +19,7 @@ class MealItem extends StatelessWidget {
     required this.duration,
     required this.complexity,
     required this.affordability,
+    required this.removeItem,
   });
 
   String? get complexityText {
@@ -56,7 +58,12 @@ class MealItem extends StatelessWidget {
     Navigator.of(context).pushNamed(
       MealDetailScreen.routeName,
       arguments: id,
-    );
+      //the data you pass to pop() is automatically passed into the function (as an argument) that executes inside of then() once pop() is triggered.
+    ).then((result) => {    //then() triggers fn as soon as you leave (pop) the new screen that was loaded via push()
+      if (result != null) {
+        removeItem(result)
+      }
+    });
   }
 
   @override

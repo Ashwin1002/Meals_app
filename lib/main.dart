@@ -1,18 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:meals_app/dummy_categories.dart';
 import 'package:meals_app/screens/category_meals_screen.dart';
 import 'package:meals_app/screens/filters_screen.dart';
 import 'package:meals_app/screens/meal_detail_screen.dart';
 import 'package:meals_app/screens/tabs_screen.dart';
 import './screens/categories_screen.dart';
+import 'models/meals.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
+  Map<String, bool> _filters = {
+    'gluten': false,
+    'lactose': false,
+    'vegan': false,
+    'vegetarian': false,
+  };
+
+  List<Meal> _availableMeals = dummyMeals;
+
+  void _setFilters(Map<String, bool> filterData) {
+    setState((){
+      _filters = filterData;
+
+      _availableMeals = dummyMeals.where((meal) {
+        if (!meal.isGlutenFree && _filters['gluten']! ) {
+          return false;
+        }
+        if (!meal.isLactoseFree && _filters['lactose']! ) {
+          return false;
+        }
+        if (!meal.isVegan && _filters['vegan']! ) {
+          return false;
+        }
+        if (!meal.isVegetarian && _filters['vegetarian']! ) {
+          return false;
+        }
+        return true;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,9 +79,9 @@ class MyApp extends StatelessWidget {
       //default is '/'
       routes: {
         '/': (ctx) => const TabsScreen(),
-        CategoryMealScreen.routeName: (ctx) => CategoryMealScreen(),
+        CategoryMealScreen.routeName: (ctx) => CategoryMealScreen(_availableMeals),
         MealDetailScreen.routeName: (ctx) => MealDetailScreen(),
-        FilterScreen.routeName: (ctx) => FilterScreen(),
+        FilterScreen.routeName: (ctx) => FilterScreen(_setFilters, _filters),
       },
 
       onGenerateRoute: (settings) {
